@@ -8,7 +8,8 @@ def max_snowballs_per_minute(minutes_passed_after_your_shot):
 
 class BaseAgent:
 
-    def __init__(self):
+    def __init__(self, total_steps=60):
+        self.total_steps = total_steps
         self.current_step_available_shooting_balls = 0
         self.current_step = 0
         self.shooting_method_was_called_in_this_round = False
@@ -33,10 +34,14 @@ class BaseAgent:
             num_balls = method(self, opponent_last_shot_to_your_field, snowball_number, minutes_passed_after_your_shot)
             self.current_step_available_shooting_balls -= num_balls
             return num_balls
+
         return inner
 
     def update_opponent_shots(self, opponent_last_shot_to_your_field):
         self.opponent_shots.append(opponent_last_shot_to_your_field)
+
+    def get_opponent_shots_sum(self, num_last_rounds):
+        return sum(self.opponent_shots[-num_last_rounds:])
 
     @on_step
     def shoot_to_opponent_field(self, opponent_last_shot_to_your_field, snowball_number,
