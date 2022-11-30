@@ -3,6 +3,7 @@ from random import randint
 import numpy as np
 import multiprocessing as mp
 from snowball_fight.agents import *
+from tqdm import tqdm
 
 
 def game_loop(player1, player2, initial_num_balls=100, total_num_steps=60):
@@ -35,19 +36,19 @@ def game_loop(player1, player2, initial_num_balls=100, total_num_steps=60):
 
         # This temporary variable is required for correct simulation of the game
         # where we do not have order, i.e. players in each step move simultaneously
-        player1_to_player2_num_balls_tmp = player1.shootToOpponentField(player2_to_player1_num_balls,
+        player1_to_player2_num_balls_tmp = player1.shoot_to_opponent_field(player2_to_player1_num_balls,
                                                                         player1_num_balls,
                                                                         player1_steps_no_shoot)
 
-        player1_to_void_num_balls = player1.shootToHotField(player2_to_player1_num_balls,
+        player1_to_void_num_balls = player1.shoot_to_hot_field(player2_to_player1_num_balls,
                                                             player1_num_balls,
                                                             player1_steps_no_shoot)
 
-        player2_to_player1_num_balls = player2.shootToOpponentField(player1_to_player2_num_balls,
+        player2_to_player1_num_balls = player2.shoot_to_opponent_field(player1_to_player2_num_balls,
                                                                     player2_num_balls,
                                                                     player2_steps_no_shoot)
 
-        player2_to_void_num_balls = player2.shootToHotField(player1_to_player2_num_balls,
+        player2_to_void_num_balls = player2.shoot_to_hot_field(player1_to_player2_num_balls,
                                                             player2_num_balls,
                                                             player2_steps_no_shoot)
 
@@ -70,10 +71,10 @@ def game_loop(player1, player2, initial_num_balls=100, total_num_steps=60):
         player2_steps_no_shoot += 1
 
         # Log player choices and states
-        print(
-            f"Player1. to opponent: {player1_to_player2_num_balls}, to hotfield: {player1_to_void_num_balls}. Now {player1_num_balls} balls. \t")
-        print(
-            f"Player2. to opponent: {player2_to_player1_num_balls}, to hotfield: {player2_to_void_num_balls}. Now {player2_num_balls} balls. \t")
+        # print(
+        #     f"Player1. to opponent: {player1_to_player2_num_balls}, to hotfield: {player1_to_void_num_balls}. Now {player1_num_balls} balls. \t")
+        # print(
+        #     f"Player2. to opponent: {player2_to_player1_num_balls}, to hotfield: {player2_to_void_num_balls}. Now {player2_num_balls} balls. \t")
 
     return player1_num_balls, player2_num_balls
 
@@ -128,6 +129,14 @@ def player_pairs(players):
             yield players[i], players[j]
 
 
+class PoolHelper:
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
+
+    def __call__(self, x):
+        return game_loop(x[0], x[1], **self.kwargs)
+
+
 def all_players_play(players, **kwargs):
     """
     Performs a play of the game between each pair of players.
@@ -136,10 +145,10 @@ def all_players_play(players, **kwargs):
     :param kwargs: any parameters that should be passed to 'game_loop'
     :return: payoffs of players after each game
     """
-    with mp.Pool(-1) as pool:
-        results = pool.map(lambda x: game_loop(x[0], x[1], **kwargs), player_pairs(players))
+    with mp.Pool() as pool:
+        results = pool.map(PoolHelper(**kwargs), player_pairs(players))
 
-    results = np.array(results).reshape((len(players), len(players), 2))
+    results = np.array(results)
 
     return results
 
