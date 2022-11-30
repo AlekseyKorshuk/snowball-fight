@@ -2,6 +2,7 @@ from random import randint
 
 import numpy as np
 import multiprocessing as mp
+from snowball_fight.agents import *
 
 
 def game_loop(player1, player2, initial_num_balls=100, total_num_steps=60):
@@ -99,7 +100,7 @@ def random_list_sums_to(list_size, list_sum):
     return arr
 
 
-def replicate_each_player_n_times(player_types, player_nums):
+def replicate_each_player_n_times(player_types, player_nums, **kwargs):
     """
     Returns a list of players where 'player_types[i]' is replicated 'player_nums[i]' times.
 
@@ -109,7 +110,7 @@ def replicate_each_player_n_times(player_types, player_nums):
     """
     players = []
     for player_num, player_type in zip(player_nums, player_types):
-        players.extend([player_type() for _ in range(player_num)])
+        players.extend([player_type(**kwargs) for _ in range(player_num)])
 
     return players
 
@@ -143,7 +144,7 @@ def all_players_play(players, **kwargs):
     return results
 
 
-def generate_population(player_types: list, population_size=50):
+def generate_population(player_types: list, population_size=50, **kwargs):
     """
     Generate population of size 'population_size' with types of players 'player_types'.
     :param player_types:
@@ -158,8 +159,8 @@ def generate_population(player_types: list, population_size=50):
 
 
 if __name__ == '__main__':
-    player_types = []
-    players = generate_population(player_types)
+    player_types = [AllCAgent, AllDAgent, TitForTatAgent]
+    players = generate_population(player_types, total_steps=60)
     results = all_players_play(players)
 
     print(results)
