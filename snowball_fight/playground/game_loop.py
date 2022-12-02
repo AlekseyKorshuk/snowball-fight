@@ -3,8 +3,6 @@ from random import randint
 import numpy as np
 import multiprocessing as mp
 from snowball_fight.agents import *
-from tqdm import tqdm
-
 
 def game_loop(player1, player2, initial_num_balls=100, total_num_steps=60):
     """
@@ -153,16 +151,36 @@ def all_players_play(players, **kwargs):
     return results
 
 
-def generate_population(player_types: list, population_size=50, **kwargs):
+def generate_population(player_types: list, population_size=10, num_players: list = None, num_players_bound='exactly',
+                        **kwargs):
     """
     Generate population of size 'population_size' with types of players 'player_types'.
-    :param player_types:
-    :param population_size:
-    :return:
+
+    :param player_types: types of players which should be present in the population
+    :param population_size: size of population
+    :param num_players: desired amount of each type of player in the population. Should be a list
+                        with length the same as length of player_types.
+                        If None - amount of each type of player is random.
+                        Otherwise, result depends on 'num_players_bound' parameter.
+    :param num_players_bound: controls the mode of 'num_players'. Has values 'exactly' and 'min'.
+                              If 'exactly', there will be exactly num_players[i] players of type player_types[i].
+                              In this case parameter 'population_size' is ignored.
+                              If 'min', there will be at least num_players[i] players of type player_types[i].
+    :return: population of players.
     """
 
-    num_players = random_list_sums_to(len(player_types), population_size)
-    players = replicate_each_player_n_times(player_types, num_players)
+    if num_players is None:
+        num_players = random_list_sums_to(len(player_types), population_size)
+    else:
+        if num_players_bound == 'exactly':
+            pass
+        elif num_players_bound == 'min':
+            num_players_ = random_list_sums_to(len(player_types), population_size - sum(num_players))
+            num_players = [n1 + n2 for n1, n2 in zip(num_players, num_players_)]
+        else:
+            raise Exception(f"Unsupported num_players_bound option '{num_players_bound}'")
+
+    players = replicate_each_player_n_times(player_types, num_players, **kwargs)
 
     return players
 
@@ -170,6 +188,13 @@ def generate_population(player_types: list, population_size=50, **kwargs):
 if __name__ == '__main__':
     player_types = [AllCAgent, AllDAgent, TitForTatAgent]
     players = generate_population(player_types, total_steps=60)
-    results = all_players_play(players)
+    print(players)
 
-    print(results)
+    players = generate_population(player_types, num_players=[2,3,1], total_steps=60)
+    print(players)
+
+    players = generate_population(player_types, num_players=[2,3,1], num_players_bound='min', total_steps=60)
+    print(players)
+    # results = all_players_play(players)
+    #
+    # print(results)
