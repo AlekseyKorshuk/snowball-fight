@@ -4,6 +4,7 @@ import numpy as np
 import multiprocessing as mp
 from snowball_fight.agents import *
 
+
 def game_loop(player1, player2, initial_num_balls=100, total_num_steps=60):
     """
     Take two players as input and perform a game.
@@ -35,28 +36,28 @@ def game_loop(player1, player2, initial_num_balls=100, total_num_steps=60):
         # This temporary variable is required for correct simulation of the game
         # where we do not have order, i.e. players in each step move simultaneously
         player1_to_player2_num_balls_tmp = player1.shoot_to_opponent_field(player2_to_player1_num_balls,
-                                                                        player1_num_balls,
-                                                                        player1_steps_no_shoot)
+                                                                           player1_num_balls,
+                                                                           player1_steps_no_shoot)
 
         player1_to_void_num_balls = player1.shoot_to_hot_field(player2_to_player1_num_balls,
-                                                            player1_num_balls,
-                                                            player1_steps_no_shoot)
+                                                               player1_num_balls,
+                                                               player1_steps_no_shoot)
 
         player2_to_player1_num_balls = player2.shoot_to_opponent_field(player1_to_player2_num_balls,
-                                                                    player2_num_balls,
-                                                                    player2_steps_no_shoot)
+                                                                       player2_num_balls,
+                                                                       player2_steps_no_shoot)
 
         player2_to_void_num_balls = player2.shoot_to_hot_field(player1_to_player2_num_balls,
-                                                            player2_num_balls,
-                                                            player2_steps_no_shoot)
+                                                               player2_num_balls,
+                                                               player2_steps_no_shoot)
 
         # After we've used this variable as input to player2,
         # we reassign a new value to it
         player1_to_player2_num_balls = player1_to_player2_num_balls_tmp
 
         # Update amount of balls on each player's field
-        player1_num_balls += player2_to_player1_num_balls - player1_to_player2_num_balls - player1_to_void_num_balls + 1
-        player2_num_balls += player1_to_player2_num_balls - player2_to_player1_num_balls - player2_to_void_num_balls + 1
+        player1_num_balls += player2_to_player1_num_balls - player1_to_player2_num_balls - player1_to_void_num_balls
+        player2_num_balls += player1_to_player2_num_balls - player2_to_player1_num_balls - player2_to_void_num_balls
 
         # If a player shoots in this round - reset the cannon
         if player1_to_player2_num_balls != 0 or player1_to_void_num_balls != 0:
@@ -70,7 +71,7 @@ def game_loop(player1, player2, initial_num_balls=100, total_num_steps=60):
 
         # Log player choices and states
         # print(
-        #     f"Player1. to opponent: {player1_to_player2_num_balls}, to hotfield: {player1_to_void_num_balls}. Now {player1_num_balls} balls. \t")
+        #     f"Player1. to opponent: {player1_to_player2_num_balls}, to hotfield: {player1_to_void_num_balls}. Now {player1_num_balls} balls. \t", end="")
         # print(
         #     f"Player2. to opponent: {player2_to_player1_num_balls}, to hotfield: {player2_to_void_num_balls}. Now {player2_num_balls} balls. \t")
 
@@ -190,10 +191,10 @@ if __name__ == '__main__':
     players = generate_population(player_types, total_steps=60)
     print(players)
 
-    players = generate_population(player_types, num_players=[2,3,1], total_steps=60)
+    players = generate_population(player_types, num_players=[2, 3, 1], total_steps=60)
     print(players)
 
-    players = generate_population(player_types, num_players=[2,3,1], num_players_bound='min', total_steps=60)
+    players = generate_population(player_types, num_players=[2, 3, 1], num_players_bound='min', total_steps=60)
     print(players)
     # results = all_players_play(players)
     #
