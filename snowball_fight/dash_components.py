@@ -42,6 +42,25 @@ def get_toggle_list():
     return table_body
 
 
+def get_input_list():
+    all_agents = utils.get_all_possible_agents()
+    all_agents_names = [agent.__name__ for agent in all_agents]
+
+    rows = [
+        html.Tr([dbc.InputGroup(
+            [
+                dbc.InputGroupText(agent),
+                dbc.Input(placeholder="Amount", type="number", value=1),
+            ],
+            className="mb-3",
+        )]) for agent in all_agents_names
+        ]
+
+    table_body = [html.Tbody(rows, id='agent-table-body')]
+
+    return table_body
+
+
 def register_agents_toggle_callback(app):
     @app.callback(
         Output('payoff-table', 'children'),
@@ -91,7 +110,7 @@ def get_tab_1_layout():
                 [
                     html.H4('Payoff Matrix', style={'textAlign': 'center'}),
                     # table
-                    html.Div(id='payoff-table', children=payoff_component()),
+                    html.Div(id='payoff-table', children=payoff_component(utils.get_all_possible_agents())),
                     # formula
                     html.H4('Total Payoff Formula', style={'textAlign': 'center'}),
                     html.Div(id='total-payoff-dropdown',
@@ -127,7 +146,7 @@ def get_tab_2_layout():
                 [
                     html.H4('Payoff Matrix', style={'textAlign': 'center'}),
                     # table
-                    html.Div(id='payoff-table', children=payoff_component()),
+                    html.Div(id='payoff-table', children=payoff_component(utils.get_all_possible_agents())),
                     # formula
                     html.H4('Total Payoff Formula', style={'textAlign': 'center'}),
                     html.Div(id='total-payoff-dropdown',
@@ -143,6 +162,7 @@ def get_tab_2_layout():
 
             )
         ]
+    )
 
 
 def register_tab_callback(app, agents):
@@ -305,4 +325,3 @@ def leaderboard_component(agents):
     return [
         dash_table.DataTable(df.to_dict('records'), [{"name": i, "id": i} for i in df.columns])
     ]
-
