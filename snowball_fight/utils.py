@@ -26,13 +26,33 @@ def get_payoff_matrix(agent_classes):
     return payoff_matrix
 
 
+def get_total_payoff_vector(agent_classes, payoff_matrix=None):
+    if payoff_matrix is None:
+        payoff_matrix = get_payoff_matrix(agent_classes)
+    n_matrix = sp.Matrix([[agent_class.__name__] for agent_class in agent_classes])
+    diagonal_matrix = sp.Matrix(np.diagonal(payoff_matrix))
+    payoff_matrix = sp.Matrix(payoff_matrix)
+    diagonal_matrix = sp.diag(diagonal_matrix)
+    sp.pprint(diagonal_matrix)
+    vector_tp = payoff_matrix * n_matrix - diagonal_matrix
+    return vector_tp
+
+
 def compute_formula(agent_classes):
     payoff_matrix = get_payoff_matrix(agent_classes)
+    print("Payoff matrix:")
+    sp.pprint(payoff_matrix)
     n_matrix = sp.Matrix([[agent_classe.__name__] for agent_classe in agent_classes])
     diagonal_matrix = sp.Matrix(np.diagonal(payoff_matrix))
     payoff_matrix = sp.Matrix(payoff_matrix)
     diagonal_matrix = sp.diag(diagonal_matrix)
+    print("Diagonal matrix:")
+    sp.pprint(diagonal_matrix)
     vector_tp = payoff_matrix * n_matrix - diagonal_matrix
+    print("payoff_matrix * n_matrix:")
+    sp.pprint(payoff_matrix * n_matrix)
+    print("Vector tp:")
+    sp.pprint(vector_tp)
     # make system of equations
     agent_systems = []
     for i in range(len(agent_classes)):
@@ -45,29 +65,42 @@ def compute_formula(agent_classes):
                 )
 
         for agent_class in agent_classes:
-            if agent_class != agent_classes[i]:
-                equations.append(sp.sympify(f"{agent_class.__name__} >= 0"))
-        print("[")
-        for equation in equations:
-            print('sp.sympify("', equation, '"),')
-        print("]")
-        # print(
-        #     [
-        #         sp.Symbol(agent_classes[i].__name__)
-        #     ]
-        # )
-        system_solution = None
-        try:
-            system_solution = sp.reduce_inequalities(
-                equations,
-                symbols=[
-                    sp.Symbol(agent_classes[0].__name__)
-                ]
-            )
-        except:
-            pass
-        print(f"Solutions for {agent_classes[i].__name__}: {system_solution}")
+            # if agent_class != agent_classes[i]:
+            equations.append(sp.sympify(f"{agent_class.__name__} >= 0"))
+        # print("[")
+        # for equation in equations:
+        #     print('sp.sympify("', equation, '"),')
+        # print("]")
+
+        print("#" * 20, agent_classes[i].__name__, "#" * 20)
+        for agent_class in agent_classes:
+            system_solution = None
+            try:
+                system_solution = sp.reduce_inequalities(
+                    equations,
+                    symbols=[
+                        sp.Symbol(agent_class.__name__)
+                    ]
+                )
+            except:
+                pass
+            system_solution = post_process(system_solution, agent_classes)
+            print(f"Rule for {agent_class.__name__}: {system_solution}")
         print()
+
+
+def post_process(system_solution, agent_classes):
+    import re
+    system_solution = str(system_solution)
+    # remove like this "& (AllCAgent < oo) " with oo
+    system_solution = re.sub(r'\(\w+ < oo\)', '', system_solution)
+    for agent_class in agent_classes:
+        agent_class_name = agent_class.__name__
+        # remove like this "& ({agent_class} >= 0) "
+        system_solution = re.sub(fr'\({agent_class_name} >= 0\)', '', system_solution)
+        system_solution = re.sub(fr'\(0 <= {agent_class_name}\)', '', system_solution)
+    system_solution = system_solution[]
+    return system_solution
 
 
 if __name__ == '__main__':
