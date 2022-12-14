@@ -144,8 +144,6 @@ def tab1_component():
             )
         )
     ])
-
-
 def tab2_component():
     return html.Div([
         html.H3('Tab content 2'),

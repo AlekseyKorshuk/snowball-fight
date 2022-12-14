@@ -12,10 +12,11 @@ agents = [AllDAgent, AllCAgent, TitForTatAgent]
 app = Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = get_layout()
-dropdown_id = 'winning_conditions_dropdown'
-div_id = 'winning_conditions_display'
-app.layout = winning_conditions_dropdown(agents)
-register_winning_conditions_callback(app, agents)
+
+# dropdown_id = 'winning_conditions_dropdown'
+# div_id = 'winning_conditions_display'
+# app.layout = winning_conditions_dropdown(agents)
+# register_winning_conditions_callback(app, agents)
 
 
 # app.layout = tabs_component()
