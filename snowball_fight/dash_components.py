@@ -82,13 +82,31 @@ def tp_component(agents):
     )
 
 
-def winning_conditions_dropdown(agents, dropdown_id, div_id):
+def winning_conditions_dropdown(agents):
     agent_names = [agent.__name__ for agent in agents]
 
     return html.Div([
-        dcc.Dropdown(agent_names, agent_names[0], id=dropdown_id),
-        html.Div(id=div_id)
+        dcc.Dropdown(agent_names, agent_names[0], id='winning_conditions_dropdown'),
+        html.Div(id='winning_conditions_display')
     ])
+
+
+def register_winning_conditions_callback(app, agents):
+    @app.callback(
+        Output('winning_conditions_display', 'children'),
+        Input('winning_conditions_dropdown', 'value')
+    )
+    def winning_conditions_display(value):
+        conditions = utils.compute_formula(agents)[value]
+        print(type(conditions[0]))
+        return html.Div(
+            html.Div(
+                className="trend",
+                children=[
+                    html.Ul(id='my-list', children=[html.Li(i) for i in conditions])
+                ],
+            )
+        )
 
 
 def tabs_component():
