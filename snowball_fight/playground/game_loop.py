@@ -186,7 +186,7 @@ def generate_population(player_types: list, population_size=10, num_players: lis
     return players
 
 
-def create_leaderboard(agents, results):
+def create_leaderboard(players, results):
     result_matrix = np.zeros((len(players), len(players)))
 
     c = 0

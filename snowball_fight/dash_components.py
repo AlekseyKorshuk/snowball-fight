@@ -156,7 +156,7 @@ def get_tab_2_layout():
         [
             dbc.Col(
                 [
-                    html.H4('TEST', style={'textAlign': 'left', 'margin-right': '3%'}),
+                    html.H4('Agents', style={'textAlign': 'left', 'margin-right': '3%'}),
                     html.Div(get_input_list()),
                     html.Br(),
                     html.Button('Compute', id='compute-button', style={'textAlign': 'center'}),
@@ -164,25 +164,15 @@ def get_tab_2_layout():
                 style={'margin-left': '3%', 'margin-right': '3%', 'margin-top': '1%', 'margin-bottom': '1%'},
                 width=3
             ),
-            # dbc.Col(
-            #     [
-            #         html.H4('Payoff Matrix', style={'textAlign': 'center'}),
-            #         # table
-            #         html.Div(id='payoff-table', children=payoff_component(utils.get_all_possible_agents())),
-            #         # formula
-            #         html.H4('Total Payoff Formula', style={'textAlign': 'center'}),
-            #         html.Div(id='total-payoff-dropdown',
-            #                  children=winning_conditions_dropdown(utils.get_all_possible_agents())),
-            #         html.Div(id='total-payoff-formula', children=[]),
-            #         # win conditions
-            #         html.H4('Win Conditions', style={'textAlign': 'center'}),
-            #         html.Div(id='win-conditions-dropdown',
-            #                  children=winning_conditions_dropdown(utils.get_all_possible_agents())),
-            #         html.Div(id='win-conditions-answer', children=[]),
-            #     ],
-            #     width=8
-            #
-            # )
+            dbc.Col(
+                [
+                    html.H4('Leaderboard', style={'textAlign': 'center'}),
+                    # table
+                    html.Div(id='leaderboard-table', children=leaderboard_component(utils.get_all_possible_agents())),
+                ],
+                width=8
+
+            )
         ]
     )
 
