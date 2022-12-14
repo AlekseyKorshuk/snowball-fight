@@ -231,7 +231,7 @@ if __name__ == '__main__':
     # players = generate_population(player_types, total_steps=60)
     # print(players)
 
-    players = generate_population(player_types, num_players=[3, 3, 3], total_steps=60)
+    players = generate_population(player_types, num_players=[1, 6, 1], total_steps=60)
     # print(players)
 
     # players = generate_population(player_types, num_players=[2, 3, 1], num_players_bound='min', total_steps=60)
@@ -241,5 +241,5 @@ if __name__ == '__main__':
     # print(results)
 
     leaderboard = create_leaderboard(players, results)
-    # print(leaderboard)
+    print(leaderboard)
 

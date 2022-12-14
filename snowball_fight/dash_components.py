@@ -109,20 +109,11 @@ def register_leaderboard_callback(app):
         State('agent-leaderboard-table-body', 'children')
     )
     def helper(_, value):
-        matcher = dict()
-        for agent_class in utils.get_all_possible_agents():
-            matcher[agent_class.__name__] = agent_class
-
-        agents = []
+        num_occurences = []
         for row in value:
-            cell = (
-                row['props']['children'][0]['props']['children'],
-                row['props']['children'][1]['props']['value']
-            )
-            for _ in range(cell[1]):
-                agents.append(matcher[cell[0]])
-        print(agents)
-        return leaderboard_component(agents)
+            num_occurences.append(int(row['props']['children'][1]['props']['value']))
+
+        return leaderboard_component(utils.get_all_possible_agents(), num_players=num_occurences)
 
 
 def get_layout():
@@ -302,8 +293,8 @@ def register_winning_conditions_callback(app, agents):
         )
 
 
-def leaderboard_component(agents):
-    leaderboard = agents_to_leaderboard_default(agents)
+def leaderboard_component(agents, **kwargs):
+    leaderboard = agents_to_leaderboard_default(agents, **kwargs)
 
     df = pd.DataFrame(leaderboard, columns=['Agent', 'Score'])
     return [
