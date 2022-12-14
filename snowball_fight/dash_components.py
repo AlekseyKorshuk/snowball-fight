@@ -124,7 +124,23 @@ def get_layout():
                 dcc.Tab(label='Formulas', value='tab-1'),
                 dcc.Tab(label='Leaderboard', value='tab-2'),
             ]),
-            html.Div(id='tabs-content')
+            html.Div(id='tabs-content'),
+            html.Br(),
+            html.Br(),
+            html.Br(),
+            html.Footer(
+                [
+                    dcc.Markdown(
+                        "**Created by [Aleksey Korshuk](https://github.com/AlekseyKorshuk), [Viacheslav Sinii](https://github.com/ummagumm-a), [Timur Aizatvafin](https://github.com/timuraiz)**"),
+                    dcc.Markdown(
+                        "[![GitHub stars](https://img.shields.io/github/stars/AlekseyKorshuk/snowball-fight?style=social)](https://github.com/AlekseyKorshuk/snowball-fight)"
+                    ),
+                ],
+                style={'display': 'inline-block', 'width': '100%', 'text-align': 'center'}
+            ),
+            html.Br(),
+            html.Br(),
+            html.Br(),
         ]
     )
 
@@ -135,7 +151,7 @@ def get_tab_1_layout():
             dbc.Col(
                 [
                     html.H4('Agents', style={'textAlign': 'left', 'margin-right': '3%'}),
-                    html.Div(get_toggle_list(), style={'textAlign': 'center'}),
+                    html.Div(get_toggle_list(), style={'textAlign': 'center', "overflow": "scroll", "max-height": "500px"}),
                     html.Br(),
                     html.Button('Compute', id='compute-button', style={'textAlign': 'center'}),
                 ],
