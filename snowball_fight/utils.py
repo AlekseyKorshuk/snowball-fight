@@ -7,6 +7,7 @@ from snowball_fight.agents.tit_for_tat import TitForTatAgent
 from snowball_fight.agents import ALL_AGENTS
 import re
 
+
 def get_payoff(agent1, agent2):
     payoff1, payoff2 = game_loop(agent1, agent2)
     # print(f"Payoff for {agent1.__class__.__name__} vs {agent2.__class__.__name__}: {payoff1} vs {payoff2}")
