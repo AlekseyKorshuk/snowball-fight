@@ -201,7 +201,7 @@ def create_leaderboard(players, results):
             result_matrix[j][i] = results[c][1]
             c += 1
 
-    print(result_matrix)
+    # print(result_matrix)
 
     player_names = [type(player).__name__ for player in players]
     sum_results = result_matrix.sum(axis=1)
@@ -232,14 +232,14 @@ if __name__ == '__main__':
     # print(players)
 
     players = generate_population(player_types, num_players=[3, 3, 3], total_steps=60)
-    print(players)
+    # print(players)
 
     # players = generate_population(player_types, num_players=[2, 3, 1], num_players_bound='min', total_steps=60)
     # print(players)
     results = all_players_play(players)
 
-    print(results)
+    # print(results)
 
     leaderboard = create_leaderboard(players, results)
-    print(leaderboard)
+    # print(leaderboard)
 
