@@ -5,11 +5,14 @@ import dash_bootstrap_components as dbc
 from dash import dash_table
 from dash import dcc, html
 import dash_daq as daq
-from dash import dash_table, html, dcc, Output, Input
+from dash import dash_table, html, dcc, Output, Input, State
 
 
-def payoff_component():
-    agents = [AllDAgent, AllCAgent, TitForTatAgent]
+def payoff_component(filter_agents=None):
+    agents = utils.get_all_possible_agents()
+    if filter_agents is not None:
+        agents = [agent for (agent, flag) in zip(agents, filter_agents) if flag]
+
     agent_names = [agent.__name__ for agent in agents]
     payoff_matrix = utils.get_payoff_matrix(agents)
     payoff_dataframe = pd.DataFrame(payoff_matrix, columns=agent_names, index=agent_names)
@@ -20,7 +23,7 @@ def payoff_component():
     ]
 
 
-def get_layout():
+def get_toggle_list():
     all_agents = utils.get_all_possible_agents()
     all_agents_names = [agent.__name__ for agent in all_agents]
 
@@ -35,6 +38,23 @@ def get_layout():
 
     table_body = [html.Tbody(rows, id='agent-table-body')]
 
+    return table_body
+
+
+def register_agents_toggle_callback(app):
+    @app.callback(
+        Output('payoff-table', 'children'),
+        Input('compute-button', 'n_clicks'),
+        State('agent-table-body', 'children')
+    )
+    def helper(_, value):
+        on_value = lambda x: x['props']['children'][1]['props']['children']['props']['on']
+        filter_values = list(map(on_value, value))
+
+        return payoff_component(filter_values)
+
+
+def get_layout():
     return html.Div(
         [
             html.H1('Snowball Fight Dashboard', style={'textAlign': 'center'}),
@@ -43,7 +63,7 @@ def get_layout():
                     dbc.Col(
                         [
                             html.H4('Agents', style={'textAlign': 'left', 'margin-right': '3%'}),
-                            html.Div(table_body, style={'textAlign': 'center'}),
+                            html.Div(get_toggle_list(), style={'textAlign': 'center'}),
                             html.Br(),
                             html.Button('Compute', id='compute-button', style={'textAlign': 'center'}),
                         ],
@@ -144,6 +164,8 @@ def tab1_component():
             )
         )
     ])
+
+
 def tab2_component():
     return html.Div([
         html.H3('Tab content 2'),

@@ -12,6 +12,7 @@ agents = [AllDAgent, AllCAgent, TitForTatAgent]
 app = Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = get_layout()
+register_agents_toggle_callback(app)
 
 # dropdown_id = 'winning_conditions_dropdown'
 # div_id = 'winning_conditions_display'
@@ -25,4 +26,4 @@ app.layout = get_layout()
 # app.layout = get_layout()
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=True, host='127.0.0.1')
