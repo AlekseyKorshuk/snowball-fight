@@ -4,11 +4,11 @@ from snowball_fight.playground.game_loop import game_loop
 from snowball_fight.agents.all_c import AllCAgent
 from snowball_fight.agents.all_d import AllDAgent
 from snowball_fight.agents.tit_for_tat import TitForTatAgent
+import re
 
 
 def get_payoff(agent1, agent2):
     payoff1, payoff2 = game_loop(agent1, agent2)
-    # print(f'{agent1.__class__.__name__} vs {agent2.__class__.__name__}: {payoff1} vs {payoff2}')
     return payoff1, payoff2
 
 
@@ -33,29 +33,17 @@ def get_total_payoff_vector(agent_classes, payoff_matrix=None):
     diagonal_matrix = sp.Matrix(np.diagonal(payoff_matrix))
     payoff_matrix = sp.Matrix(payoff_matrix)
     diagonal_matrix = sp.diag(diagonal_matrix)
-    sp.pprint(diagonal_matrix)
     vector_tp = payoff_matrix * n_matrix - diagonal_matrix
     return vector_tp
 
 
 def compute_formula(agent_classes):
+    win_rules = dict()
     payoff_matrix = get_payoff_matrix(agent_classes)
-    print("Payoff matrix:")
-    sp.pprint(payoff_matrix)
-    n_matrix = sp.Matrix([[agent_classe.__name__] for agent_classe in agent_classes])
-    diagonal_matrix = sp.Matrix(np.diagonal(payoff_matrix))
-    payoff_matrix = sp.Matrix(payoff_matrix)
-    diagonal_matrix = sp.diag(diagonal_matrix)
-    print("Diagonal matrix:")
-    sp.pprint(diagonal_matrix)
-    vector_tp = payoff_matrix * n_matrix - diagonal_matrix
-    print("payoff_matrix * n_matrix:")
-    sp.pprint(payoff_matrix * n_matrix)
-    print("Vector tp:")
-    sp.pprint(vector_tp)
-    # make system of equations
-    agent_systems = []
+    vector_tp = get_total_payoff_vector(agent_classes, payoff_matrix)
+
     for i in range(len(agent_classes)):
+        win_rules[agent_classes[i].__name__] = dict()
         equations = []
         for j in range(len(agent_classes)):
             if i != j:
@@ -63,16 +51,8 @@ def compute_formula(agent_classes):
                 equations.append(
                     equation
                 )
-
         for agent_class in agent_classes:
-            # if agent_class != agent_classes[i]:
             equations.append(sp.sympify(f"{agent_class.__name__} >= 0"))
-        # print("[")
-        # for equation in equations:
-        #     print('sp.sympify("', equation, '"),')
-        # print("]")
-
-        print("#" * 20, agent_classes[i].__name__, "#" * 20)
         for agent_class in agent_classes:
             system_solution = None
             try:
@@ -85,71 +65,32 @@ def compute_formula(agent_classes):
             except:
                 pass
             system_solution = post_process(system_solution, agent_classes)
-            print(f"Rule for {agent_class.__name__}: {system_solution}")
-        print()
+            win_rules[agent_classes[i].__name__][agent_class.__name__] = system_solution
+    return win_rules
 
 
 def post_process(system_solution, agent_classes):
-    import re
+    if system_solution is None or system_solution == sp.false:
+        return system_solution
     system_solution = str(system_solution)
-    # remove like this "& (AllCAgent < oo) " with oo
     system_solution = re.sub(r'\(\w+ < oo\)', '', system_solution)
     for agent_class in agent_classes:
         agent_class_name = agent_class.__name__
-        # remove like this "& ({agent_class} >= 0) "
         system_solution = re.sub(fr'\({agent_class_name} >= 0\)', '', system_solution)
         system_solution = re.sub(fr'\(0 <= {agent_class_name}\)', '', system_solution)
-    system_solution = system_solution[]
+    start_index = system_solution.find(f"(")
+    system_solution = system_solution[start_index:]
     return system_solution
 
 
 if __name__ == '__main__':
     agent_classes = [
         AllCAgent,
-        # AllCAgent,
         AllDAgent,
         TitForTatAgent,
     ]
     formula = compute_formula(agent_classes)
-    # print(formula)
-    # formula = sp.sympify(
-    #     "(D - 1) * 160 + C * 1 + T * 149 > D * 160 + (C - 1) * 1 + T * 1"
-    # )
-    # print(formula)
-    # print(formula.simplify())
-    # [[-2*AllDAgent + 149*TitForTatAgent - 160 > 0, -2*AllDAgent > 0]]
-    # system = [
-    #     sp.sympify("(AllD - 1) * 160 + AllC * 1 + AllT * 149 > AllD * 160 + (AllC - 1) * 1 + AllT * 1"),
-    #     sp.sympify("AllD * 149 + AllC * 1 + (AllT - 1) * 1 >= AllD * 160 + (AllC - 1) * 1 + AllT * 1"),
-    #     sp.sympify("AllD >= 0"),
-    #     sp.sympify("AllC >= 0"),
-    #     sp.sympify("AllT >= 0"),
-    # ]
-    system = [
-        # sp.sympify(
-        #     "AllCAgent + 158*AllDAgent + TitForTatAgent - 1 > AllCAgent + 160*AllDAgent + 149*TitForTatAgent - 160"),
-        # sp.sympify(" AllCAgent + 158*AllDAgent + TitForTatAgent - 1 > AllCAgent + 160*AllDAgent + TitForTatAgent - 1"),
-        sp.sympify(" AllCAgent + 74*TitForTatAgent < 159/2 "),
-        # sp.sympify(" AllDAgent < 0 "),
-        sp.sympify("AllCAgent >= 0"),
-        sp.sympify("AllDAgent >= 0"),
-        sp.sympify("TitForTatAgent >= 0"),
-    ]
-    answer = sp.reduce_inequalities(
-        system,
-        symbols=[sp.Symbol("AllCAgent")]
-    )
-    # print(answer)
-
-'''
-AllCAgent vs AllDAgent: 220 vs 58
-AllCAgent vs TitForTatAgent: 58 vs 58
-AllDAgent vs TitForTatAgent: 209 vs 220
-
-inequality:
-AllCAgent*58 + AllDAgent*220 <= AllDAgent*209 + AllCAgent*58 + AllCAgent*58 + AllDAgent*220
-AllDAgent*220 + AllCAgent*58 < AllDAgent*209 + AllCAgent*58
-
-
-158*AllDAgent > 160*AllDAgent
-'''
+    for agent_class in agent_classes:
+        print("#" * 20, agent_class.__name__, "#" * 20)
+        for agent_class2 in agent_classes:
+            print(f"{agent_class2.__name__}: {formula[agent_class.__name__][agent_class2.__name__]}")
