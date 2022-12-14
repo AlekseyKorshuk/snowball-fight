@@ -8,11 +8,11 @@ import dash_daq as daq
 from dash import dash_table, html, dcc, Output, Input, State
 import sympy as sp
 
+from snowball_fight.playground.game_loop import agents_to_leaderboard_default
 
-def payoff_component(filter_agents=None):
-    agents = utils.get_all_possible_agents()
-    if filter_agents is not None:
-        agents = [agent for (agent, flag) in zip(agents, filter_agents) if flag]
+
+def payoff_component(agents):
+    # agents = utils.get_filtered_agents()
 
     agent_names = [agent.__name__ for agent in agents]
     payoff_matrix = utils.get_payoff_matrix(agents)
@@ -45,6 +45,8 @@ def get_toggle_list():
 def register_agents_toggle_callback(app):
     @app.callback(
         Output('payoff-table', 'children'),
+        Output('total-payoff-dropdown', 'children'),
+        Output('win-conditions-dropdown', 'children'),
         Input('compute-button', 'n_clicks'),
         State('agent-table-body', 'children')
     )
@@ -52,7 +54,11 @@ def register_agents_toggle_callback(app):
         on_value = lambda x: x['props']['children'][1]['props']['children']['props']['on']
         filter_values = list(map(on_value, value))
 
-        return payoff_component(filter_values)
+        filtered_agents = utils.get_filtered_agents(filter_values)
+
+        return payoff_component(filtered_agents), \
+               winning_conditions_dropdown(filtered_agents), \
+               winning_conditions_dropdown(filtered_agents)
 
 
 def get_layout():
@@ -75,7 +81,7 @@ def get_layout():
                         [
                             html.H4('Payoff Matrix', style={'textAlign': 'center'}),
                             # table
-                            html.Div(id='payoff-table', children=payoff_component()),
+                            html.Div(id='payoff-table', children=payoff_component(utils.get_all_possible_agents())),
                             # formula
                             html.H4('Total Payoff Formula', style={'textAlign': 'center'}),
                             html.Div(id='total-payoff-dropdown',
@@ -104,9 +110,11 @@ def register_total_payoff_callback(app, agents):
         State('total-payoff-dropdown', 'children')
     )
     def helper(_, value):
-        print(value)
         selected_value = value['props']['children'][0]['props']['value']
         possible_answers = value['props']['children'][0]['props']['options']
+
+        agents = list(map(eval, possible_answers))
+
         tp = utils.get_total_payoff_vector(agents)
         tp = tp[possible_answers.index(selected_value)]
 
@@ -126,6 +134,8 @@ def register_win_conditions_callback(app, agents):
     )
     def helper(_, value):
         selected_value = value['props']['children'][0]['props']['value']
+        agents = value['props']['children'][0]['props']['options']
+        agents = list(map(eval, agents))
         formula = utils.compute_formula(agents)
         answers = formula[selected_value]
         string_latext = "$\\begin{cases}"
@@ -158,7 +168,7 @@ def winning_conditions_dropdown(agents):
     agent_names = [agent.__name__ for agent in agents]
 
     return html.Div([
-        dcc.Dropdown(agent_names, agent_names[0], id='winning_conditions_dropdown'),
+        dcc.Dropdown(agent_names, agent_names[0]),
         html.Div(id='winning_conditions_display')
     ])
 
@@ -169,6 +179,9 @@ def register_winning_conditions_callback(app, agents):
         Input('winning_conditions_dropdown', 'value')
     )
     def winning_conditions_display(value):
+        print(value)
+        agents = value['props']['children'][0]['props']['options']
+        agents = list(map(eval, agents))
         conditions = utils.compute_formula(agents)[value]
         print(type(conditions[0]))
         return html.Div(
@@ -231,3 +244,13 @@ def tab2_component():
             )
         )
     ])
+
+
+def leaderboard_component(agents):
+    leaderboard = agents_to_leaderboard_default(agents)
+
+    df = pd.DataFrame(leaderboard, columns=['Agent', 'Score'])
+    return [
+        dash_table.DataTable(df.to_dict('records'), [{"name": i, "id": i} for i in df.columns])
+    ]
+
