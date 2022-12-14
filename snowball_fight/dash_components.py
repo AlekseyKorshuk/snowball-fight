@@ -59,42 +59,95 @@ def get_layout():
     return html.Div(
         [
             html.H1('Snowball Fight Dashboard', style={'textAlign': 'center'}),
-            dbc.Row(
-                [
-                    dbc.Col(
-                        [
-                            html.H4('Agents', style={'textAlign': 'left', 'margin-right': '3%'}),
-                            html.Div(get_toggle_list(), style={'textAlign': 'center'}),
-                            html.Br(),
-                            html.Button('Compute', id='compute-button', style={'textAlign': 'center'}),
-                        ],
-                        style={'margin-left': '3%', 'margin-right': '3%', 'margin-top': '1%', 'margin-bottom': '1%'},
-                        width=3
-                    ),
-                    dbc.Col(
-                        [
-                            html.H4('Payoff Matrix', style={'textAlign': 'center'}),
-                            # table
-                            html.Div(id='payoff-table', children=payoff_component()),
-                            # formula
-                            html.H4('Total Payoff Formula', style={'textAlign': 'center'}),
-                            html.Div(id='total-payoff-dropdown',
-                                     children=winning_conditions_dropdown(utils.get_all_possible_agents())),
-                            html.Div(id='total-payoff-formula', children=[]),
-                            # win conditions
-                            html.H4('Win Conditions', style={'textAlign': 'center'}),
-                            html.Div(id='win-conditions-dropdown',
-                                     children=winning_conditions_dropdown(utils.get_all_possible_agents())),
-                            html.Div(id='win-conditions-answer', children=[]),
-                        ],
-                        width=8
+            dcc.Tabs(id="tabs", value='tab-1', children=[
+                dcc.Tab(label='Formulas', value='tab-1'),
+                dcc.Tab(label='Leaderboard', value='tab-2'),
+            ]),
+            html.Div(id='tabs-content')
+        ]
+    )
 
-                    )
-                ]
+
+def get_tab_1_layout():
+    return dbc.Row(
+        [
+            dbc.Col(
+                [
+                    html.H4('Agents', style={'textAlign': 'left', 'margin-right': '3%'}),
+                    html.Div(get_toggle_list(), style={'textAlign': 'center'}),
+                    html.Br(),
+                    html.Button('Compute', id='compute-button', style={'textAlign': 'center'}),
+                ],
+                style={'margin-left': '3%', 'margin-right': '3%', 'margin-top': '1%', 'margin-bottom': '1%'},
+                width=3
+            ),
+            dbc.Col(
+                [
+                    html.H4('Payoff Matrix', style={'textAlign': 'center'}),
+                    # table
+                    html.Div(id='payoff-table', children=payoff_component()),
+                    # formula
+                    html.H4('Total Payoff Formula', style={'textAlign': 'center'}),
+                    html.Div(id='total-payoff-dropdown',
+                             children=winning_conditions_dropdown(utils.get_all_possible_agents())),
+                    html.Div(id='total-payoff-formula', children=[]),
+                    # win conditions
+                    html.H4('Win Conditions', style={'textAlign': 'center'}),
+                    html.Div(id='win-conditions-dropdown',
+                             children=winning_conditions_dropdown(utils.get_all_possible_agents())),
+                    html.Div(id='win-conditions-answer', children=[]),
+                ],
+                width=8
+
             )
         ]
-
     )
+
+
+def get_tab_2_layout():
+    return dbc.Row(
+        [
+            dbc.Col(
+                [
+                    html.H4('TEST', style={'textAlign': 'left', 'margin-right': '3%'}),
+                    html.Div(get_toggle_list(), style={'textAlign': 'center'}),
+                    html.Br(),
+                    html.Button('Compute', id='compute-button', style={'textAlign': 'center'}),
+                ],
+                style={'margin-left': '3%', 'margin-right': '3%', 'margin-top': '1%', 'margin-bottom': '1%'},
+                width=3
+            ),
+            dbc.Col(
+                [
+                    html.H4('Payoff Matrix', style={'textAlign': 'center'}),
+                    # table
+                    html.Div(id='payoff-table', children=payoff_component()),
+                    # formula
+                    html.H4('Total Payoff Formula', style={'textAlign': 'center'}),
+                    html.Div(id='total-payoff-dropdown',
+                             children=winning_conditions_dropdown(utils.get_all_possible_agents())),
+                    html.Div(id='total-payoff-formula', children=[]),
+                    # win conditions
+                    html.H4('Win Conditions', style={'textAlign': 'center'}),
+                    html.Div(id='win-conditions-dropdown',
+                             children=winning_conditions_dropdown(utils.get_all_possible_agents())),
+                    html.Div(id='win-conditions-answer', children=[]),
+                ],
+                width=8
+
+            )
+        ]
+    )
+
+
+def register_tab_callback(app, agents):
+    @app.callback(Output('tabs-content', 'children'),
+                  Input('tabs', 'value'))
+    def render_content(tab):
+        if tab == 'tab-1':
+            return get_tab_1_layout()
+        elif tab == 'tab-2':
+            return get_tab_2_layout()
 
 
 def register_total_payoff_callback(app, agents):
