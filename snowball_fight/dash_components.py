@@ -5,6 +5,7 @@ import dash_bootstrap_components as dbc
 from dash import dash_table
 from dash import dcc, html
 import dash_daq as daq
+from dash import dash_table, html, dcc, Output, Input
 
 
 def payoff_component():
@@ -65,3 +66,80 @@ def get_layout():
         ]
 
     )
+
+
+def tp_component(agents):
+    tp = utils.get_total_payoff_vector(agents)
+    tp = list(map(str, tp))
+
+    return html.Div(
+        html.Div(
+            className="trend",
+            children=[
+                html.Ul(id='my-list', children=[html.Li(i) for i in tp])
+            ],
+        )
+    )
+
+
+def winning_conditions_dropdown(agents, dropdown_id, div_id):
+    agent_names = [agent.__name__ for agent in agents]
+
+    return html.Div([
+        dcc.Dropdown(agent_names, agent_names[0], id=dropdown_id),
+        html.Div(id=div_id)
+    ])
+
+
+def tabs_component():
+    return html.Div([
+        dcc.Tabs(id='tabs-example-1', value='tab-1', children=[
+            dcc.Tab(label='Tab one', value='tab-1'),
+            dcc.Tab(label='Tab two', value='tab-2'),
+        ]),
+        html.Div(id='tabs-example-content-1')
+    ])
+
+
+def register_tabs_callback(app, tab1, tab2):
+    @app.callback(
+        Output('tabs-example-content-1', 'children'),
+        Input('tabs-example-1', 'value')
+    )
+    def render_content(tab):
+        if tab == 'tab-1':
+            return tab1
+        elif tab == 'tab-2':
+            return tab2
+
+
+def tab1_component():
+    return html.Div([
+        html.H3('Tab content 1'),
+        dcc.Graph(
+            figure=dict(
+                data=[dict(
+                    x=[1, 2, 3],
+                    y=[3, 1, 2],
+                    type='bar'
+                )]
+            )
+        )
+    ])
+
+
+def tab2_component():
+    return html.Div([
+        html.H3('Tab content 2'),
+        dcc.Graph(
+            figure=dict(
+                data=[dict(
+                    x=[1, 2, 3],
+                    y=[5, 10, 6],
+                    type='bar'
+                )]
+            )
+        )
+    ])
+
+
