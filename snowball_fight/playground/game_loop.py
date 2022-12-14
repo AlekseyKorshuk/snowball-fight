@@ -213,6 +213,14 @@ def create_leaderboard(agents, results):
     return leaderboard
 
 
+def agents_to_leaderboard_default(agents, **kwargs):
+    players = generate_population(agents, total_steps=60, **kwargs)
+    results = all_players_play(players)
+    leaderboard = create_leaderboard(players, results)
+
+    return leaderboard
+
+
 if __name__ == '__main__':
     player_types = [AllCAgent, AllDAgent, TitForTatAgent]
     # players = generate_population(player_types, total_steps=60)
