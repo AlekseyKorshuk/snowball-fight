@@ -232,10 +232,13 @@ def register_win_conditions_callback(app, agents):
         agents = list(map(eval, agents))
         formula = utils.compute_formula(agents)
         answers = formula[selected_value]
-        string_latext = "$\\begin{cases}"
-        for answer in answers:
-            string_latext += sp.latex(answer.simplify()) + ' \\\ '
-        string_latext += "\end{cases}$"
+        if len(answers) == 1 and str(answers[0]) == 'True':
+            string_latext = sp.latex(sp.Symbol("Always wins"))
+        else:
+            string_latext = "$\\begin{cases}"
+            for answer in answers:
+                string_latext += sp.latex(answer.simplify()) + ' \\\ '
+            string_latext += "\end{cases}$"
         return html.H6(
             [
                 dcc.Markdown(string_latext, mathjax=True)
