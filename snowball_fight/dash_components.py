@@ -14,16 +14,7 @@ def payoff_component():
     payoff_dataframe = pd.DataFrame(payoff_matrix, columns=agent_names, index=agent_names)
     df = payoff_dataframe.reset_index()
     df.rename(columns={"index": ''}, inplace=True)
-    # tp = utils.get_total_payoff_vector(agents, payoff_matrix)
-    # print(tp)
-    # tp_dataframe = pd.DataFrame([tp], index=agent_names)
-    # print(df)
-
-    return dbc.Container([
-        dbc.Label('Click a cell in the table:'),
-        dash_table.DataTable(df.to_dict('records'), [{"name": i, "id": i} for i in df.columns]),
-        dbc.Alert(id='tbl_out'),
-    ])
+    return dash_table.DataTable(df.to_dict('records'), [{"name": i, "id": i} for i in df.columns])
 
 
 def get_layout():
@@ -42,23 +33,35 @@ def get_layout():
     table_body = [html.Tbody(rows, id='agent-table-body')]
 
     return html.Div(
-        html.Div([
-            html.H4('Snowball Fight Dashboard', style={'textAlign': 'center'}),
-            html.Div(table_body, style={'textAlign': 'center'}),
-            # html.Br(),
-            # html.Div([
-            #     "⠀Library (optional): ",
-            #     dcc.Input(id='gym_lib', value="", type='text')
-            # ], style={'textAlign': 'center'}),
-            # html.H5(id='live-update-text', style={'textAlign': 'center'}),
-            # dcc.Graph(id='live-update-graph'),
-            # html.Div([
-            # ], style={'textAlign': 'center'}, id="videos"),
-            # dcc.Interval(
-            #     id='interval-component',
-            #     interval=1 * 1000,  # in milliseconds
-            #     n_intervals=0
-            # ),
-            # html.Div(id='placeholder', children="placeholder", style={'display': 'none'})
-        ])
+        [
+            html.H1('Snowball Fight Dashboard', style={'textAlign': 'center'}),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        [
+                            html.H4('Agents', style={'textAlign': 'left', 'margin-right': '3%'}),
+                            html.Div(table_body, style={'textAlign': 'center'}),
+                            html.Br(),
+                            html.Button('Compute', id='compute-button', style={'textAlign': 'center'}),
+                        ],
+                        style={'margin-left': '3%', 'margin-right': '3%', 'margin-top': '1%', 'margin-bottom': '1%',
+                               'width': '30%'},
+                    ),
+                    dbc.Col(
+                        [
+                            html.H4('Payoff Matrix', style={'textAlign': 'center'}),
+                            # table
+                            html.Div(id='payoff-table', children=list(payoff_component())),
+                            # formula
+                            # html.Div(id='formula'),
+                        ],
+                        style={'margin-left': '3%', 'margin-right': '3%', 'margin-top': '1%', 'margin-bottom': '1%',
+                               'width': '70%'},
+                        width=6
+
+                    )
+                ]
+            )
+        ]
+
     )
