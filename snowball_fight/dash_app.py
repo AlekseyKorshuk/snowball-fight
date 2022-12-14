@@ -5,7 +5,7 @@ from dash import Dash, Input, Output
 from dash_components import *
 from agents import AllDAgent, AllCAgent, TitForTatAgent
 
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css'] + [dbc.themes.GRID]
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css'] + [dbc.themes.GRID, ]
 agents = [AllDAgent, AllCAgent, TitForTatAgent]
 
 app = Dash(__name__, external_stylesheets=external_stylesheets, suppress_callback_exceptions=True)

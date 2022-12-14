@@ -46,19 +46,41 @@ def get_input_list():
     all_agents = utils.get_all_possible_agents()
     all_agents_names = [agent.__name__ for agent in all_agents]
 
+    css_style1 = {
+        "position": "relative",
+        "display": "flex",
+        "flex-wrap": "wrap",
+        "align-items": "stretch",
+        "width": "100%",
+    }
+    # '''
+    css_style = {
+        "display": "flex",
+        "align-items": "center",
+        "padding": ".375rem .75rem",
+        "font-size": "1rem",
+        "font-weight": "400",
+        "line-height": "1.5",
+        "color": "#212529",
+        "text-align": "center",
+        "white-space": "nowrap",
+        "background-color": "#e9ecef",
+        "border": "1px solid  #ced4da",
+        "border-radius": ".25rem",
+    }
+    # '''
     rows = [
-        html.Tr([dbc.InputGroup(
+        dbc.InputGroup(
             [
-                dbc.InputGroupText(agent),
+                dbc.InputGroupText(agent, style=css_style),
                 dbc.Input(placeholder="Amount", type="number", value=1),
             ],
             className="mb-3",
-        )]) for agent in all_agents_names
-        ]
+            style=css_style1
+        ) for agent in all_agents_names
+    ]
 
-    table_body = [html.Tbody(rows, id='agent-table-body')]
-
-    return table_body
+    return html.Div(rows, id='agent-table-body')
 
 
 def register_agents_toggle_callback(app):
@@ -135,32 +157,32 @@ def get_tab_2_layout():
             dbc.Col(
                 [
                     html.H4('TEST', style={'textAlign': 'left', 'margin-right': '3%'}),
-                    html.Div(get_toggle_list(), style={'textAlign': 'center'}),
+                    html.Div(get_input_list()),
                     html.Br(),
                     html.Button('Compute', id='compute-button', style={'textAlign': 'center'}),
                 ],
                 style={'margin-left': '3%', 'margin-right': '3%', 'margin-top': '1%', 'margin-bottom': '1%'},
                 width=3
             ),
-            dbc.Col(
-                [
-                    html.H4('Payoff Matrix', style={'textAlign': 'center'}),
-                    # table
-                    html.Div(id='payoff-table', children=payoff_component(utils.get_all_possible_agents())),
-                    # formula
-                    html.H4('Total Payoff Formula', style={'textAlign': 'center'}),
-                    html.Div(id='total-payoff-dropdown',
-                             children=winning_conditions_dropdown(utils.get_all_possible_agents())),
-                    html.Div(id='total-payoff-formula', children=[]),
-                    # win conditions
-                    html.H4('Win Conditions', style={'textAlign': 'center'}),
-                    html.Div(id='win-conditions-dropdown',
-                             children=winning_conditions_dropdown(utils.get_all_possible_agents())),
-                    html.Div(id='win-conditions-answer', children=[]),
-                ],
-                width=8
-
-            )
+            # dbc.Col(
+            #     [
+            #         html.H4('Payoff Matrix', style={'textAlign': 'center'}),
+            #         # table
+            #         html.Div(id='payoff-table', children=payoff_component(utils.get_all_possible_agents())),
+            #         # formula
+            #         html.H4('Total Payoff Formula', style={'textAlign': 'center'}),
+            #         html.Div(id='total-payoff-dropdown',
+            #                  children=winning_conditions_dropdown(utils.get_all_possible_agents())),
+            #         html.Div(id='total-payoff-formula', children=[]),
+            #         # win conditions
+            #         html.H4('Win Conditions', style={'textAlign': 'center'}),
+            #         html.Div(id='win-conditions-dropdown',
+            #                  children=winning_conditions_dropdown(utils.get_all_possible_agents())),
+            #         html.Div(id='win-conditions-answer', children=[]),
+            #     ],
+            #     width=8
+            #
+            # )
         ]
     )
 
