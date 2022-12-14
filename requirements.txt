@@ -1,0 +1,5 @@
+numpy==1.23.5
+dash==2.7.1
+pandas==1.5.2
+sympy==1.11.1
+dash_bootstrap_components==1.2.1
