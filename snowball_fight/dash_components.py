@@ -6,6 +6,7 @@ from dash import dash_table
 from dash import dcc, html
 import dash_daq as daq
 from dash import dash_table, html, dcc, Output, Input, State
+import sympy as sp
 
 
 def payoff_component(filter_agents=None):
@@ -76,6 +77,10 @@ def get_layout():
                             # table
                             html.Div(id='payoff-table', children=payoff_component()),
                             # formula
+                            html.H4('Total Payoff Formula', style={'textAlign': 'center'}),
+                            html.Div(id='total-payoff-dropdown',
+                                     children=winning_conditions_dropdown(utils.get_all_possible_agents())),
+                            html.Div(id='total-payoff-formula', children=[]),
                             # html.Div(id='formula'),
                         ],
                         width=8
@@ -86,6 +91,27 @@ def get_layout():
         ]
 
     )
+
+
+def register_total_payoff_callback(app, agents):
+    @app.callback(
+        Output('total-payoff-formula', 'children'),
+        Input('total-payoff-dropdown', 'n_clicks'),
+        State('total-payoff-dropdown', 'children')
+    )
+    def helper(_, value):
+        print(value)
+        selected_value = value['props']['children'][0]['props']['value']
+        possible_answers = value['props']['children'][0]['props']['options']
+        tp = utils.get_total_payoff_vector(agents)
+        tp = tp[possible_answers.index(selected_value)]
+
+        return html.H6(
+            [
+                dcc.Markdown(sp.latex(tp, mode='inline'), mathjax=True)
+            ],
+            style={'textAlign': 'center'}
+        )
 
 
 def tp_component(agents):
@@ -179,5 +205,3 @@ def tab2_component():
             )
         )
     ])
-
-

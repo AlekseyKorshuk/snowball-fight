@@ -5,7 +5,6 @@ from dash import Dash, Input, Output
 from dash_components import *
 from agents import AllDAgent, AllCAgent, TitForTatAgent
 
-
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css'] + [dbc.themes.GRID]
 agents = [AllDAgent, AllCAgent, TitForTatAgent]
 
@@ -22,6 +21,7 @@ register_agents_toggle_callback(app)
 
 # app.layout = tabs_component()
 # register_tabs_callback(app, tab1_component(), tab2_component())
+register_total_payoff_callback(app, agents)
 
 # app.layout = get_layout()
 
