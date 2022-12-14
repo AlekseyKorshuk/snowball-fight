@@ -14,7 +14,9 @@ def payoff_component():
     payoff_dataframe = pd.DataFrame(payoff_matrix, columns=agent_names, index=agent_names)
     df = payoff_dataframe.reset_index()
     df.rename(columns={"index": ''}, inplace=True)
-    return dash_table.DataTable(df.to_dict('records'), [{"name": i, "id": i} for i in df.columns])
+    return [
+        dash_table.DataTable(df.to_dict('records'), [{"name": i, "id": i} for i in df.columns])
+    ]
 
 
 def get_layout():
@@ -44,20 +46,18 @@ def get_layout():
                             html.Br(),
                             html.Button('Compute', id='compute-button', style={'textAlign': 'center'}),
                         ],
-                        style={'margin-left': '3%', 'margin-right': '3%', 'margin-top': '1%', 'margin-bottom': '1%',
-                               'width': '30%'},
+                        style={'margin-left': '3%', 'margin-right': '3%', 'margin-top': '1%', 'margin-bottom': '1%'},
+                        width=3
                     ),
                     dbc.Col(
                         [
                             html.H4('Payoff Matrix', style={'textAlign': 'center'}),
                             # table
-                            html.Div(id='payoff-table', children=list(payoff_component())),
+                            html.Div(id='payoff-table', children=payoff_component()),
                             # formula
                             # html.Div(id='formula'),
                         ],
-                        style={'margin-left': '3%', 'margin-right': '3%', 'margin-top': '1%', 'margin-bottom': '1%',
-                               'width': '70%'},
-                        width=6
+                        width=8
 
                     )
                 ]
