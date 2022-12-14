@@ -1,5 +1,5 @@
 import math
-from .base import BaseAgent
+from base import BaseAgent
 
 
 class SoftMojo(BaseAgent):
@@ -49,3 +49,16 @@ class SoftMojo(BaseAgent):
                     self.current_step_available_shooting_balls
                 )
         return 0
+
+
+if __name__ == '__main__':
+    agent = SoftMojo()
+
+    print(agent.shoot_to_opponent_field(123, 0, 0))
+    print(agent.shoot_to_hot_field(123, 0, 0))
+    print(agent)
+
+    assert agent.current_step == 1
+    assert agent.current_step_available_shooting_balls == 0
+    assert agent.shooting_method_was_called_in_this_round is False
+    assert agent.opponent_shots == [123]
