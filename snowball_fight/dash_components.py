@@ -73,7 +73,7 @@ def get_input_list():
         dbc.InputGroup(
             [
                 dbc.InputGroupText(agent, style=css_style),
-                dbc.Input(placeholder="Amount", type="number", value=1),
+                dbc.Input(placeholder="Amount", type="number", value=1, min=0, step=1),
             ],
             className="mb-3",
             style=css_style1
@@ -105,7 +105,7 @@ def register_agents_toggle_callback(app):
 def register_leaderboard_callback(app):
     @app.callback(
         Output('leaderboard-table', 'children'),
-        Input('compute-button', 'n_clicks'),
+        Input('compute-leaderboard-button', 'n_clicks'),
         State('agent-leaderboard-table-body', 'children')
     )
     def helper(_, value):
@@ -121,6 +121,7 @@ def register_leaderboard_callback(app):
             )
             for _ in range(cell[1]):
                 agents.append(matcher[cell[0]])
+        print(agents)
         return leaderboard_component(agents)
 
 
@@ -181,7 +182,7 @@ def get_tab_2_layout():
                     html.H4('Agents', style={'textAlign': 'left', 'margin-right': '3%'}),
                     html.Div(get_input_list()),
                     html.Br(),
-                    html.Button('Compute', id='compute-button', style={'textAlign': 'center'}),
+                    html.Button('Compute', id='compute-leaderboard-button', style={'textAlign': 'center'}),
                 ],
                 style={'margin-left': '3%', 'margin-right': '3%', 'margin-top': '1%', 'margin-bottom': '1%'},
                 width=3
@@ -288,11 +289,9 @@ def register_winning_conditions_callback(app, agents):
         Input('winning_conditions_dropdown', 'value')
     )
     def winning_conditions_display(value):
-        print(value)
         agents = value['props']['children'][0]['props']['options']
         agents = list(map(eval, agents))
         conditions = utils.compute_formula(agents)[value]
-        print(type(conditions[0]))
         return html.Div(
             html.Div(
                 className="trend",
