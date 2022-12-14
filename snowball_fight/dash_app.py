@@ -24,6 +24,7 @@ register_agents_toggle_callback(app)
 register_total_payoff_callback(app, agents)
 register_win_conditions_callback(app, agents)
 register_tab_callback(app, agents)
+register_leaderboard_callback(app)
 
 # app.layout = get_layout()
 

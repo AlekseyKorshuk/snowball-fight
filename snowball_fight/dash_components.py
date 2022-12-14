@@ -80,7 +80,7 @@ def get_input_list():
         ) for agent in all_agents_names
     ]
 
-    return html.Div(rows, id='agent-table-body')
+    return html.Div(rows, id='agent-leaderboard-table-body')
 
 
 def register_agents_toggle_callback(app):
@@ -100,6 +100,28 @@ def register_agents_toggle_callback(app):
         return payoff_component(filtered_agents), \
                winning_conditions_dropdown(filtered_agents), \
                winning_conditions_dropdown(filtered_agents)
+
+
+def register_leaderboard_callback(app):
+    @app.callback(
+        Output('leaderboard-table', 'children'),
+        Input('compute-button', 'n_clicks'),
+        State('agent-leaderboard-table-body', 'children')
+    )
+    def helper(_, value):
+        matcher = dict()
+        for agent_class in utils.get_all_possible_agents():
+            matcher[agent_class.__name__] = agent_class
+
+        agents = []
+        for row in value:
+            cell = (
+                row['props']['children'][0]['props']['children'],
+                row['props']['children'][1]['props']['value']
+            )
+            for _ in range(cell[1]):
+                agents.append(matcher[cell[0]])
+        return leaderboard_component(agents)
 
 
 def get_layout():
@@ -279,58 +301,6 @@ def register_winning_conditions_callback(app, agents):
                 ],
             )
         )
-
-
-def tabs_component():
-    return html.Div([
-        dcc.Tabs(id='tabs-example-1', value='tab-1', children=[
-            dcc.Tab(label='Tab one', value='tab-1'),
-            dcc.Tab(label='Tab two', value='tab-2'),
-        ]),
-        html.Div(id='tabs-example-content-1')
-    ])
-
-
-def register_tabs_callback(app, tab1, tab2):
-    @app.callback(
-        Output('tabs-example-content-1', 'children'),
-        Input('tabs-example-1', 'value')
-    )
-    def render_content(tab):
-        if tab == 'tab-1':
-            return tab1
-        elif tab == 'tab-2':
-            return tab2
-
-
-def tab1_component():
-    return html.Div([
-        html.H3('Tab content 1'),
-        dcc.Graph(
-            figure=dict(
-                data=[dict(
-                    x=[1, 2, 3],
-                    y=[3, 1, 2],
-                    type='bar'
-                )]
-            )
-        )
-    ])
-
-
-def tab2_component():
-    return html.Div([
-        html.H3('Tab content 2'),
-        dcc.Graph(
-            figure=dict(
-                data=[dict(
-                    x=[1, 2, 3],
-                    y=[5, 10, 6],
-                    type='bar'
-                )]
-            )
-        )
-    ])
 
 
 def leaderboard_component(agents):
