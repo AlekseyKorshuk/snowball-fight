@@ -81,7 +81,11 @@ def get_layout():
                             html.Div(id='total-payoff-dropdown',
                                      children=winning_conditions_dropdown(utils.get_all_possible_agents())),
                             html.Div(id='total-payoff-formula', children=[]),
-                            # html.Div(id='formula'),
+                            # win conditions
+                            html.H4('Win Conditions', style={'textAlign': 'center'}),
+                            html.Div(id='win-conditions-dropdown',
+                                     children=winning_conditions_dropdown(utils.get_all_possible_agents())),
+                            html.Div(id='win-conditions-answer', children=[]),
                         ],
                         width=8
 
@@ -109,6 +113,28 @@ def register_total_payoff_callback(app, agents):
         return html.H6(
             [
                 dcc.Markdown(sp.latex(tp, mode='inline'), mathjax=True)
+            ],
+            style={'textAlign': 'center'}
+        )
+
+
+def register_win_conditions_callback(app, agents):
+    @app.callback(
+        Output('win-conditions-answer', 'children'),
+        Input('win-conditions-dropdown', 'n_clicks'),
+        State('win-conditions-dropdown', 'children')
+    )
+    def helper(_, value):
+        selected_value = value['props']['children'][0]['props']['value']
+        formula = utils.compute_formula(agents)
+        answers = formula[selected_value]
+        string_latext = "$\\begin{cases}"
+        for answer in answers:
+            string_latext += sp.latex(answer.simplify()) + ' \\\ '
+        string_latext += "\end{cases}$"
+        return html.H6(
+            [
+                dcc.Markdown(string_latext, mathjax=True)
             ],
             style={'textAlign': 'center'}
         )

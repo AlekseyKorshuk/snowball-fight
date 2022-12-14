@@ -22,6 +22,7 @@ register_agents_toggle_callback(app)
 # app.layout = tabs_component()
 # register_tabs_callback(app, tab1_component(), tab2_component())
 register_total_payoff_callback(app, agents)
+register_win_conditions_callback(app, agents)
 
 # app.layout = get_layout()
 
