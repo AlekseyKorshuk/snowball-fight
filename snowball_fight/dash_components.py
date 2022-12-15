@@ -156,7 +156,7 @@ def get_tab_1_layout():
                     html.Button('Compute', id='compute-button', style={'textAlign': 'center'}),
                 ],
                 style={'margin-left': '3%', 'margin-right': '3%', 'margin-top': '1%', 'margin-bottom': '1%'},
-                width=2
+                width=3
             ),
             dbc.Col(
                 [
@@ -174,7 +174,7 @@ def get_tab_1_layout():
                              children=winning_conditions_dropdown(utils.get_all_possible_agents())),
                     html.Div(id='win-conditions-answer', children=[]),
                 ],
-                width=9
+                width=8
 
             )
         ]
