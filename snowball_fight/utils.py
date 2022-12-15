@@ -49,8 +49,25 @@ def compute_formula(agent_classes):
         for j in range(len(agent_classes)):
             if i != j:
                 equation = sp.sympify(f"{vector_tp[i]} - {vector_tp[j]} <= 0")
+                # check if the equation is already in the list
+                exists = False
+                for eq_ in win_rules[agent_classes[i].__name__]:
+                    if str(equation) == str(eq_):
+                        exists = True
+                        break
+                if not exists:
+                    win_rules[agent_classes[i].__name__].append(equation)
 
-                win_rules[agent_classes[i].__name__].append(equation)
+        try:
+            symbols = [sp.Symbol(agent_classes[i].__name__)]
+            win_rules[agent_classes[i].__name__] = sp.reduce_inequalities(win_rules[agent_classes[i].__name__],
+                                                                          symbols=symbols)
+        except:
+            pass
+
+        # print(win_rules[agent_classes[i].__name__])
+        # win_rules[agent_classes[i].__name__] = set(win_rules[agent_classes[i].__name__])
+
     return win_rules
 
 
@@ -85,11 +102,11 @@ def get_all_possible_agents():
     return ALL_AGENTS
 
 
-
 def get_filtered_agents(filter_list):
     agents = [agent for (agent, flag) in zip(ALL_AGENTS, filter_list) if flag]
 
     return agents
+
 
 if __name__ == '__main__':
     agent_classes = [
