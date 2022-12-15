@@ -44,7 +44,7 @@ def postprocess_constraints(constraints):
     return constraints
 
 
-def compute_formula(agent_classes):
+def compute_formula(agent_classes, is_zero_possible=True):
     win_rules = dict()
     payoff_matrix = get_payoff_matrix(agent_classes)
     vector_tp = get_total_payoff_vector(agent_classes, payoff_matrix)
@@ -63,16 +63,31 @@ def compute_formula(agent_classes):
                         break
                 if not exists:
                     win_rules[agent_classes[i].__name__].append(equation)
+        for agent in agent_classes:
+            value = ">" if agent.__name__ == agent_classes[i].__name__ or not is_zero_possible else ">="
+            print(f"{agent.__name__} {value} 0")
+            win_rules[agent_classes[i].__name__].append(sp.sympify(f"{agent.__name__} {value} 0"))
 
-        try:
-            symbols = [sp.Symbol(agent_classes[i].__name__)]
-            win_rules[agent_classes[i].__name__] = postprocess_constraints(
-                sp.reduce_inequalities(win_rules[agent_classes[i].__name__],
-                symbols=symbols)
-            )
-            # win_rules[agent_classes[i].__name__] = postprocess_constraints(win_rules[agent_classes[i].__name__])
-        except:
-            pass
+        print(f"Before reduction {agent_classes[i].__name__}: ", win_rules[agent_classes[i].__name__])
+        reduced = None
+        for agent in agent_classes:
+            try:
+                symbols = [sp.Symbol(agent.__name__)]
+                result = post_process(
+                    sp.reduce_inequalities(win_rules[agent_classes[i].__name__],
+                                           symbols=symbols),
+                    agent_classes
+                )
+                if (reduced is not None and len(result) < len(reduced)) or reduced is None:
+                    reduced = result
+                # print(f"Done for {agent_classes[i].__name__} with {agent.__name__}")
+                break
+            except Exception as ex:
+                pass
+
+        if reduced is not None:
+            # print(f"Reduced for {agent_classes[i].__name__}: {reduced}")
+            win_rules[agent_classes[i].__name__] = reduced
 
         # print(win_rules[agent_classes[i].__name__])
         # win_rules[agent_classes[i].__name__] = set(win_rules[agent_classes[i].__name__])
@@ -104,7 +119,11 @@ def post_process(system_solution, agent_classes):
     if system_solution.endswith('& '):
         system_solution = system_solution[:-2]
 
-    return system_solution
+    rows = system_solution.split(' & ')
+    rows = [row.strip() for row in rows]
+    rows = [sp.sympify(row) for row in rows]
+    # print(rows)
+    return rows
 
 
 def get_all_possible_agents():
@@ -118,13 +137,35 @@ def get_filtered_agents(filter_list):
 
 
 if __name__ == '__main__':
-    agent_classes = [
-        AllCAgent,
-        AllDAgent,
-        TitForTatAgent,
+    # agent_classes = [
+    #     AllCAgent,
+    #     AllDAgent,
+    #     TitForTatAgent,
+    # ]
+    # formula = compute_formula(agent_classes)
+    # for agent_class in agent_classes:
+    #     print("#" * 20, agent_class.__name__, "#" * 20)
+    #     for rule in formula[agent_class.__name__]:
+    #         print(f"\t{rule}")
+
+    # rows = [
+    #     "Mistrust <= 0", "Mistrust <= -AllDAgent / 46",
+    #     "Mistrust <= -25 * Pavlov / 81 - 149 * Spiteful / 243 - 25 * TitForTatAgent / 81 + 160 / 243",
+    #     "Mistrust <= -46 * HardMojo / 81 - 149 * Pavlov / 243 - 46 * SoftMojo / 81 - 149 * Spiteful / 243 - 149 * TitForTatAgent / 243 + 160 / 243"
+    # ]
+
+    rows = [
+        "AllDAgent >= 9 * Mistrust", "AllDAgent >= 46 * Mistrust", "AllDAgent >= 79 * Mistrust",
+        "AllDAgent >= 169 * Mistrust / 2 + 75 * Pavlov / 2 + 149 * Spiteful / 2 + 75 * TitForTatAgent / 2 - 80",
+        "AllDAgent >= 69 * HardMojo + 169 * Mistrust / 2 + 149 * Pavlov / 2 + 69 * SoftMojo + 149 * Spiteful / 2 + 149 * TitForTatAgent / 2 - 80"
     ]
-    formula = compute_formula(agent_classes)
-    for agent_class in agent_classes:
-        print("#" * 20, agent_class.__name__, "#" * 20)
-        for rule in formula[agent_class.__name__]:
-            print(f"\t{rule}")
+    rows = [
+        "AllDAgent >=0", "AllDAgent > 0"
+    ]
+    rows = [sp.sympify(row) for row in rows]
+
+    symbols = [sp.Symbol("AllDAgent")]
+    result = sp.reduce_inequalities(rows,
+                                    symbols=symbols),
+
+    # print(result)

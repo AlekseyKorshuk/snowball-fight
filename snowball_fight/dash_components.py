@@ -37,7 +37,24 @@ def get_toggle_list():
         )]) for agent in all_agents_names
     ]
 
-    table_body = [html.Tbody(rows, id='agent-table-body')]
+    table_body = [
+        html.Tbody(rows, id='agent-table-body'),
+        html.Tbody(
+            html.Tr(
+                [
+                    html.Td("Is zero possible?"),
+                    html.Td(
+                        daq.BooleanSwitch(
+                            id='is-zero-possible-toggle',
+                            on=True,
+                        )
+                    )
+                ],
+                id='is-zero-possible'
+            )
+        )
+
+    ]
 
     return table_body
 
@@ -150,8 +167,9 @@ def get_tab_1_layout():
         [
             dbc.Col(
                 [
-                    html.H4('Agents', style={'textAlign': 'left', 'margin-right': '3%'}),
-                    html.Div(get_toggle_list(), style={'textAlign': 'center', "overflow": "scroll", "max-height": "500px"}),
+                    html.H4('Settings', style={'textAlign': 'left', 'margin-right': '3%'}),
+                    html.Div(get_toggle_list(),
+                             style={'textAlign': 'center', "overflow": "scroll", "max-height": "500px"}),
                     html.Br(),
                     html.Button('Compute', id='compute-button', style={'textAlign': 'center'}),
                 ],
@@ -244,15 +262,20 @@ def register_win_conditions_callback(app, agents):
     @app.callback(
         Output('win-conditions-answer', 'children'),
         Input('win-conditions-dropdown', 'n_clicks'),
-        State('win-conditions-dropdown', 'children')
+        State('win-conditions-dropdown', 'children'),
+        State('is-zero-possible-toggle', 'on'),
     )
-    def helper(_, value):
+    def helper(_, value, is_zero_possible):
+        print("is_zero_possible", is_zero_possible)
         selected_value = value['props']['children'][0]['props']['value']
         agents = value['props']['children'][0]['props']['options']
         agents = list(map(eval, agents))
-        formula = utils.compute_formula(agents)
+        formula = utils.compute_formula(agents, is_zero_possible=is_zero_possible)
         answers = formula[selected_value]
-        if len(answers) == 1 and str(answers[0]) == 'True':
+        # print(type(answers), answers)
+        if type(answers) != list and type(answers) == sp.logic.boolalg.BooleanFalse:
+            string_latext = sp.latex(sp.Symbol("It cannot win"))
+        elif type(answers) == list and len(answers) == 1 and str(answers[0]) == 'True':
             string_latext = sp.latex(sp.Symbol("Always wins"))
         else:
             string_latext = "$\\begin{cases}"
