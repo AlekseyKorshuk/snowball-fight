@@ -39,6 +39,11 @@ def get_total_payoff_vector(agent_classes, payoff_matrix=None):
     return vector_tp
 
 
+def postprocess_constraints(constraints):
+    print(constraints)
+    return constraints
+
+
 def compute_formula(agent_classes):
     win_rules = dict()
     payoff_matrix = get_payoff_matrix(agent_classes)
@@ -49,6 +54,7 @@ def compute_formula(agent_classes):
         for j in range(len(agent_classes)):
             if i != j:
                 equation = sp.sympify(f"{vector_tp[i]} - {vector_tp[j]} <= 0")
+                equation = equation.simplify()
                 # check if the equation is already in the list
                 exists = False
                 for eq_ in win_rules[agent_classes[i].__name__]:
@@ -60,8 +66,11 @@ def compute_formula(agent_classes):
 
         try:
             symbols = [sp.Symbol(agent_classes[i].__name__)]
-            win_rules[agent_classes[i].__name__] = sp.reduce_inequalities(win_rules[agent_classes[i].__name__],
-                                                                          symbols=symbols)
+            win_rules[agent_classes[i].__name__] = postprocess_constraints(
+                sp.reduce_inequalities(win_rules[agent_classes[i].__name__],
+                symbols=symbols)
+            )
+            # win_rules[agent_classes[i].__name__] = postprocess_constraints(win_rules[agent_classes[i].__name__])
         except:
             pass
 
