@@ -1,5 +1,5 @@
 import math
-from base import BaseAgent
+from .base import BaseAgent
 
 
 class TitForTatAgent(BaseAgent):
@@ -7,8 +7,8 @@ class TitForTatAgent(BaseAgent):
     Cooperates the two first moves, then defects only if the opponent has defected during the two previous moves
     '''
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, total_steps=60):
+        super().__init__(total_steps=total_steps)
         self.first_steps = [4, 8]
 
     @BaseAgent.on_step

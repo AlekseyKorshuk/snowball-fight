@@ -1,5 +1,5 @@
 import math
-from base import BaseAgent
+from .base import BaseAgent
 
 
 class Mistrust(BaseAgent):
@@ -7,8 +7,8 @@ class Mistrust(BaseAgent):
     Defects on the first move then play what my opponent played the previous move
     '''
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, total_steps=60):
+        super().__init__(total_steps=total_steps)
         self.first_step_past = False
 
     def reset(self):

@@ -1,5 +1,5 @@
 import math
-from base import BaseAgent
+from .base import BaseAgent
 
 
 class SoftMojo(BaseAgent):
@@ -8,8 +8,8 @@ class SoftMojo(BaseAgent):
     equal to the number of times it has defected
     '''
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, total_steps=60):
+        super().__init__(total_steps=total_steps)
         self.opponent_hits = 0
         self.opponent_cooperation = 0
 

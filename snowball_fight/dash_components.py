@@ -1,5 +1,5 @@
 import utils
-from agents import AllDAgent, AllCAgent, TitForTatAgent
+from agents import *
 import pandas as pd
 import dash_bootstrap_components as dbc
 from dash import dash_table

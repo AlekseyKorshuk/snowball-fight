@@ -1,5 +1,5 @@
 import math
-from base import BaseAgent
+from .base import BaseAgent
 
 
 class Spiteful(BaseAgent):
@@ -7,8 +7,8 @@ class Spiteful(BaseAgent):
     Cooperates until the opponent defects and thereafter always defects
     '''
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, total_steps=60):
+        super().__init__(total_steps=total_steps)
         self.is_attacked = False
 
     def reset(self):
