@@ -6,6 +6,7 @@ from .spiteful import Spiteful
 from .soft_majo import SoftMojo
 from .hard_majo import HardMojo
 
+
 ALL_AGENTS = [
     AllCAgent,
     AllDAgent,

@@ -15,6 +15,7 @@ def game_loop(player1, player2, initial_num_balls=100, total_num_steps=60):
     :param total_num_steps: number of steps in the game
     :return: payoffs of players in the end of the game
     """
+    # print("#"*200)
     player1_num_balls = initial_num_balls
     player2_num_balls = initial_num_balls
 
@@ -75,8 +76,9 @@ def game_loop(player1, player2, initial_num_balls=100, total_num_steps=60):
         # Log player choices and states
         # print(
         #     f"Player1. to opponent: {player1_to_player2_num_balls}, to hotfield: {player1_to_void_num_balls}. Now {player1_num_balls} balls. \t", end="")
+        #     f"{i} Player1. to opponent: {player1_to_player2_num_balls}, to hotfield: {player1_to_void_num_balls}. Now {player1_num_balls} balls. \t", end="")
         # print(
-        #     f"Player2. to opponent: {player2_to_player1_num_balls}, to hotfield: {player2_to_void_num_balls}. Now {player2_num_balls} balls. \t")
+        #     f"{i} Player2. to opponent: {player2_to_player1_num_balls}, to hotfield: {player2_to_void_num_balls}. Now {player2_num_balls} balls. \t")
 
     return player1_num_balls, player2_num_balls
 
@@ -128,6 +130,8 @@ def player_pairs(players):
 
     for i in range(len(players)):
         for j in range(i + 1, len(players)):
+            players[i].reset()
+            players[j].reset()
             yield players[i], players[j]
 
 
@@ -147,8 +151,10 @@ def all_players_play(players, **kwargs):
     :param kwargs: any parameters that should be passed to 'game_loop'
     :return: payoffs of players after each game
     """
-    with mp.Pool() as pool:
-        results = pool.map(PoolHelper(**kwargs), player_pairs(players))
+    # with mp.Pool() as pool:
+    #     results = pool.map(PoolHelper(**kwargs), player_pairs(players))
+
+    results = list(map(PoolHelper(**kwargs), player_pairs(players)))
 
     results = np.array(results)
 
@@ -189,16 +195,55 @@ def generate_population(player_types: list, population_size=10, num_players: lis
     return players
 
 
+def create_leaderboard(players, results):
+    result_matrix = np.zeros((len(players), len(players)))
+
+    c = 0
+    for i in range(len(players)):
+        for j in range(i + 1, len(players)):
+            result_matrix[i][j] = results[c][0]
+            result_matrix[j][i] = results[c][1]
+            c += 1
+
+    # print(result_matrix)
+
+    player_names = [type(player).__name__ for player in players]
+    sum_results = result_matrix.sum(axis=1)
+    # print(sum_results)
+
+    leaderboard = zip(player_names, sum_results)
+    # remove duplicates
+    leaderboard = list(dict.fromkeys(leaderboard))
+
+    # sort the leaderboard
+    leaderboard = sorted(leaderboard, key=lambda x: x[1])
+    # print(leaderboard)
+
+    return leaderboard
+
+
+def agents_to_leaderboard_default(agents, **kwargs):
+    players = generate_population(agents, total_steps=60, **kwargs)
+    results = all_players_play(players)
+    leaderboard = create_leaderboard(players, results)
+
+    return leaderboard
+
+
 if __name__ == '__main__':
     player_types = [AllCAgent, AllDAgent, TitForTatAgent]
-    players = generate_population(player_types, total_steps=60)
+    # players = generate_population(player_types, total_steps=60)
     # print(players)
 
-    players = generate_population(player_types, num_players=[1, 100, 0], total_steps=60)
+    players = generate_population(player_types, num_players=[1, 6, 1], total_steps=60)
     # print(players)
 
     # players = generate_population(player_types, num_players=[2, 3, 1], num_players_bound='min', total_steps=60)
     # print(players)
     results = all_players_play(players)
-    #
-    print(results)
+
+    # print(results)
+
+    leaderboard = create_leaderboard(players, results)
+    print(leaderboard)
+
