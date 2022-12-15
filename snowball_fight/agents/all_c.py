@@ -1,4 +1,3 @@
-import math
 from snowball_fight.agents.base import BaseAgent
 
 
