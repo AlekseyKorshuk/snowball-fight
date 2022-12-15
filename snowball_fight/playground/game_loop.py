@@ -60,6 +60,9 @@ def game_loop(player1, player2, initial_num_balls=100, total_num_steps=60):
         player1_num_balls += player2_to_player1_num_balls - player1_to_player2_num_balls - player1_to_void_num_balls
         player2_num_balls += player1_to_player2_num_balls - player2_to_player1_num_balls - player2_to_void_num_balls
 
+        # player1_num_balls += 1
+        # player2_num_balls += 1
+
         # If a player shoots in this round - reset the cannon
         if player1_to_player2_num_balls != 0 or player1_to_void_num_balls != 0:
             player1_steps_no_shoot = 0
@@ -72,6 +75,7 @@ def game_loop(player1, player2, initial_num_balls=100, total_num_steps=60):
 
         # Log player choices and states
         # print(
+        #     f"Player1. to opponent: {player1_to_player2_num_balls}, to hotfield: {player1_to_void_num_balls}. Now {player1_num_balls} balls. \t", end="")
         #     f"{i} Player1. to opponent: {player1_to_player2_num_balls}, to hotfield: {player1_to_void_num_balls}. Now {player1_num_balls} balls. \t", end="")
         # print(
         #     f"{i} Player2. to opponent: {player2_to_player1_num_balls}, to hotfield: {player2_to_void_num_balls}. Now {player2_num_balls} balls. \t")

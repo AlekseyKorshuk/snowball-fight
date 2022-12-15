@@ -85,11 +85,11 @@ def get_all_possible_agents():
     return ALL_AGENTS
 
 
+
 def get_filtered_agents(filter_list):
     agents = [agent for (agent, flag) in zip(ALL_AGENTS, filter_list) if flag]
 
     return agents
-
 
 if __name__ == '__main__':
     agent_classes = [
